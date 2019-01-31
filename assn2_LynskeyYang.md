@@ -1,18 +1,17 @@
----
-title: "Assignment 2"
-author: "Troy Yang, Becky Lynskey"
-
-output: rmarkdown::github_document
----
+Assignment 2
+================
+Troy Yang, Becky Lynskey
 
 ### Statement of Author contributions
+
 We worked through the lab together at all times while working on this. Short answer responses were always talked through before writing anything, and whenever there was disagreement we aways made sure to come to a concensus first. We took turns writing the code, but we also made sure that we agreed on things before they were written.
 
 Problem 1
 ---------
+
 ### Question 1
 
-```{r}
+``` r
 benguela <- read.csv("http://faraway.neu.edu/data/assn3_benguela.csv")
 california <- read.csv("http://faraway.neu.edu/data/assn3_california.csv")
 canary <- read.csv("http://faraway.neu.edu/data/assn3_canary.csv")
@@ -26,7 +25,7 @@ humboldt$period <- ifelse(humboldt$year < 2025, "before", "after")
 
 ### Question 2
 
-```{r}
+``` r
 benguela_new <- data.frame(year = benguela$year, period = benguela$period, mmmean = 
                          rowMeans(benguela[,-23:-24]))
 california_new <- data.frame(year = california$year, period = california$period, 
@@ -35,11 +34,11 @@ canary_new <- data.frame(year = canary$year, period = canary$period,
                              mmmean = rowMeans(canary[,-23:-24]))
 humboldt_new <- data.frame(year = humboldt$year, period = humboldt$period, 
                              mmmean = rowMeans(humboldt[,-23:-24]))
-
 ```
 
 ### Question 3
-```{r}
+
+``` r
 benguela_before <- benguela_new[which(benguela_new$period == "before"),]
 benguela_after <- benguela_new[which(benguela_new$period == "after"),]
 california_before <- california_new[which(california_new$period == "before"),]
@@ -50,37 +49,141 @@ humboldt_before <- humboldt_new[which(humboldt_new$period == "before"),]
 humboldt_after <- humboldt_new[which(humboldt_new$period == "after"),]
 
 shapiro.test(benguela_before$mmmean)
+```
+
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  benguela_before$mmmean
+    ## W = 0.98281, p-value = 0.4028
+
+``` r
 shapiro.test(benguela_after$mmmean)
+```
+
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  benguela_after$mmmean
+    ## W = 0.98991, p-value = 0.8204
+
+``` r
 shapiro.test(california_before$mmmean)
+```
+
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  california_before$mmmean
+    ## W = 0.98943, p-value = 0.7929
+
+``` r
 shapiro.test(california_after$mmmean)
+```
+
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  california_after$mmmean
+    ## W = 0.97638, p-value = 0.1737
+
+``` r
 shapiro.test(canary_before$mmmean)
+```
+
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  canary_before$mmmean
+    ## W = 0.98603, p-value = 0.5817
+
+``` r
 shapiro.test(canary_after$mmmean)
+```
+
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  canary_after$mmmean
+    ## W = 0.96229, p-value = 0.02496
+
+``` r
 shapiro.test(humboldt_before$mmmean)
+```
+
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  humboldt_before$mmmean
+    ## W = 0.9877, p-value = 0.6858
+
+``` r
 shapiro.test(humboldt_after$mmmean)
 ```
-Using the Shapiro-Wilks test, we can see that the canary after and humboldt after data do not come from a normal distributions. Even though all the other data are normal, we have to use non-parametric tests because canary after and humboldt after data are not normal. Although non parametric tests make fewer assumptions, they are less powerful than parametric tests. 
 
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  humboldt_after$mmmean
+    ## W = 0.96227, p-value = 0.02489
+
+Using the Shapiro-Wilks test, we can see that the canary after and humboldt after data do not come from a normal distributions. Even though all the other data are normal, we have to use non-parametric tests because canary after and humboldt after data are not normal. Although non parametric tests make fewer assumptions, they are less powerful than parametric tests.
 
 ### Question 4
 
-We use the Mann-U Whitney test, as it is the non-parametric version of the two sample
-t-test.
+We use the Mann-U Whitney test, as it is the non-parametric version of the two sample t-test.
 
-Ho: There is no difference between multimodel means of upwelling between periods for each EBCS
-Ha: There is a difference between multimodel means of upwelling between periods for each EBCS
+Ho: There is no difference between multimodel means of upwelling between periods for each EBCS Ha: There is a difference between multimodel means of upwelling between periods for each EBCS
 
-```{r}
+``` r
 wilcox.test(mmmean ~ period, data = benguela_new)
+```
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  mmmean by period
+    ## W = 5319, p-value < 2.2e-16
+    ## alternative hypothesis: true location shift is not equal to 0
+
+``` r
 wilcox.test(mmmean ~ period, data = california_new)
+```
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  mmmean by period
+    ## W = 3894, p-value = 4.841e-05
+    ## alternative hypothesis: true location shift is not equal to 0
+
+``` r
 wilcox.test(mmmean ~ period, data = canary_new)
+```
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  mmmean by period
+    ## W = 5463, p-value < 2.2e-16
+    ## alternative hypothesis: true location shift is not equal to 0
+
+``` r
 wilcox.test(mmmean ~ period, data = humboldt_new)
 ```
 
-The p-values obtained on testing on each EBCS were <.05, therefore we reject the Ho.
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  mmmean by period
+    ## W = 5349, p-value < 2.2e-16
+    ## alternative hypothesis: true location shift is not equal to 0
 
+The p-values obtained on testing on each EBCS were &lt;.05, therefore we reject the Ho.
 
 ### Question 5
-```{r}
+
+``` r
 se <- function(x) {
   sd(x)/(length(x)^.5)
 }
@@ -142,39 +245,74 @@ legend(x = 10, y = .9, title = "Period", col = c(3,2), legend = c("Before", "Aft
        pch = 15)
 ```
 
+![](assn2_LynskeyYang_files/figure-markdown_github/unnamed-chunk-5-1.png)
+
 ### Question 6
 
 Based on the, the means between periods are different, as the confidence intervals did not overlap at all, and for each EBCS, the after period had a higher average multimodel mean upwelling. In addition to that, the statistical analysis also indicated that there was a difference in multimodel means between periods. This allows us to conclude that mutimodel mean upwelling is rising over time (higher after vs before).
 
-
 Problem 2
 ---------
+
 ### Question 1
 
-The two tests we could use to look for differences in groups variances are the F-Test and the Levene's Test. The assumptions of the Levene and F Test are the same and that the
-data is random and normally distributed. Levene's test is more robust, as it can still give the right answer even if data are not normally distributed. 
-
+The two tests we could use to look for differences in groups variances are the F-Test and the Levene's Test. The assumptions of the Levene and F Test are the same and that the data is random and normally distributed. Levene's test is more robust, as it can still give the right answer even if data are not normally distributed.
 
 ### Question 2
 
-Ho: There is no difference in variance of upwelling between periods for each EBCS
-Ha: There is a difference in variance of upwelling between periods for each EBCS
+Ho: There is no difference in variance of upwelling between periods for each EBCS Ha: There is a difference in variance of upwelling between periods for each EBCS
 
 We know that some of the data are not normally distributed from the Shaprio-Wilks test, so therefore we should use Levene's Test.
 
-```{r}
+``` r
 library(car)
 
 leveneTest(mmmean ~ period, data = benguela_new)
+```
+
+    ## Levene's Test for Homogeneity of Variance (center = median)
+    ##        Df F value Pr(>F)
+    ## group   1  0.5294  0.468
+    ##       148
+
+``` r
 leveneTest(mmmean ~ period, data = california_new)
+```
+
+    ## Levene's Test for Homogeneity of Variance (center = median)
+    ##        Df F value  Pr(>F)  
+    ## group   1  5.7206 0.01802 *
+    ##       148                  
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
 leveneTest(mmmean ~ period, data = canary_new)
+```
+
+    ## Levene's Test for Homogeneity of Variance (center = median)
+    ##        Df F value  Pr(>F)  
+    ## group   1  6.6044 0.01116 *
+    ##       148                  
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
 leveneTest(mmmean ~ period, data = humboldt_new)
 ```
-The Benguela EBCS had no difference in variance between periods as the p value was above .05. However, for all the other EBCS, the p-value was below .05 and so we can conclude that for those EBCS there was a difference in variance between periods. 
+
+    ## Levene's Test for Homogeneity of Variance (center = median)
+    ##        Df F value  Pr(>F)  
+    ## group   1  5.3757 0.02179 *
+    ##       148                  
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+The Benguela EBCS had no difference in variance between periods as the p value was above .05. However, for all the other EBCS, the p-value was below .05 and so we can conclude that for those EBCS there was a difference in variance between periods.
 
 ### Question 3
 
-```{r}
+``` r
 vars <- matrix( data = c(var(benguela_before$mmmean), var(benguela_after$mmmean),
                           var(california_before$mmmean),
                           var(california_after$mmmean),
@@ -190,43 +328,90 @@ legend(x = 1, y = .003, title = "Period", col = c(3,2), legend = c("Before", "Af
        pch = 15)
 ```
 
+![](assn2_LynskeyYang_files/figure-markdown_github/unnamed-chunk-7-1.png)
+
 ### Question 4
 
 Looking at the figure, we can see that varience in upwelling decreased in the after period in both the Benguela and California currents in the after period. There was no statistical difference in the varience between the periods of the Benguela current, as the change in variance was small in comparison to the variance itself, and the Levene Test gave a high p-value. For Canary and Humboldt, the varaince in upwelling increased in the after period. For California, Canary and Humboldt the differences in variances were statistically siginicant based on the Levene test. Trends were more consistent for means, as the mean upwelling in each EBCS was higher in the after period. Variances were split 50/50 when looking at the trends.
 
 Problem 3
 ---------
+
 ### Question 1
 
-```{r}
+``` r
 d3 <- read.csv(file = "http://faraway.neu.edu/data/assn2_dataset3.csv")
-
-
 ```
 
 We will use a one sample t-test in this scenario. That is because we want to compare the migration distances for the east and west coast to a given migration pace of 2.4 km/year.
 
 ### Question 2
-Ho: Mean migration rates of the coasts are the same as the given 2.4 km/yr
-Ha: Mean migration rates of the coasts are not the same as the given 2.4 km/yr
+
+Ho: Mean migration rates of the coasts are the same as the given 2.4 km/yr Ha: Mean migration rates of the coasts are not the same as the given 2.4 km/yr
 
 ### Question 3
-```{r}
+
+``` r
 east <- d3[which(d3$coast == "East"),]
 west <- d3[which(d3$coast == "West"),]
 
 # Checking to see if meets assumptions
 shapiro.test(east$migration)
-shapiro.test(west$migration)
+```
 
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  east$migration
+    ## W = 0.95011, p-value = 0.1703
+
+``` r
+shapiro.test(west$migration)
+```
+
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  west$migration
+    ## W = 0.98568, p-value = 0.9482
+
+``` r
 t.test(east$migration, mu = 2.4)
+```
+
+    ## 
+    ##  One Sample t-test
+    ## 
+    ## data:  east$migration
+    ## t = 0.48873, df = 29, p-value = 0.6287
+    ## alternative hypothesis: true mean is not equal to 2.4
+    ## 95 percent confidence interval:
+    ##  2.163647 2.784778
+    ## sample estimates:
+    ## mean of x 
+    ##  2.474212
+
+``` r
 t.test(west$migration, mu = 2.4)
 ```
 
-For the East coast, the p-value was >.05 and so we fail to reject Ho, and the migration rate for the east coast is the same as the given 2.4 km/yr. For the west coast, the p-value was < .05 and so we reject Ho, and the migration rate for the west coast is not the same as the given 2.4 km/yr.
+    ## 
+    ##  One Sample t-test
+    ## 
+    ## data:  west$migration
+    ## t = 2.1018, df = 29, p-value = 0.04437
+    ## alternative hypothesis: true mean is not equal to 2.4
+    ## 95 percent confidence interval:
+    ##  2.423810 4.146282
+    ## sample estimates:
+    ## mean of x 
+    ##  3.285046
+
+For the East coast, the p-value was &gt;.05 and so we fail to reject Ho, and the migration rate for the east coast is the same as the given 2.4 km/yr. For the west coast, the p-value was &lt; .05 and so we reject Ho, and the migration rate for the west coast is not the same as the given 2.4 km/yr.
 
 ### Question 4
-```{r}
+
+``` r
 mean_east <- mean(east$migration)
 mean_west <- mean(west$migration)
 
@@ -250,26 +435,44 @@ mp <- barplot(means, main = "East and West Coast Mean Migration Rate", beside = 
 arrows(mp,low_ci,mp, up_ci, angle = 90, code = 3)
 abline(h=2.4, lty = 2, col = 2)
 ```
-This plot confirms what the t test said, as the red dashed line represetning the 2.4 rate is within the bounds of the east coast CI but not within the bounds of the west coast CI. We can also see that the west has a higher mean migration rate compared to the east coast.
+
+![](assn2_LynskeyYang_files/figure-markdown_github/unnamed-chunk-10-1.png) This plot confirms what the t test said, as the red dashed line represetning the 2.4 rate is within the bounds of the east coast CI but not within the bounds of the west coast CI. We can also see that the west has a higher mean migration rate compared to the east coast.
 
 ### Question 5
 
-```{r}
+``` r
 leveneTest(migration ~ coast, data = d3)
 ```
-We have to use Welch's T Test because we cannot use a Two Sample T-Test. We cannot use the two sample t-test because it assumes that the groups have equal standard deviations. 
-The assumptions of Welch's T Test are that the data is randomly sampled.
 
-Ho: East and west coast mean migration rates are the same
-Ha: East and west coast mean migration rates are not the same
+    ## Levene's Test for Homogeneity of Variance (center = median)
+    ##       Df F value    Pr(>F)    
+    ## group  1  18.316 7.099e-05 ***
+    ##       58                      
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-```{r}
+We have to use Welch's T Test because we cannot use a Two Sample T-Test. We cannot use the two sample t-test because it assumes that the groups have equal standard deviations. The assumptions of Welch's T Test are that the data is randomly sampled.
+
+Ho: East and west coast mean migration rates are the same Ha: East and west coast mean migration rates are not the same
+
+``` r
 t.test(east$migration, west$migration)
 ```
-P value is > .05 so we fail to reject Ho, the means are the same.
+
+    ## 
+    ##  Welch Two Sample t-test
+    ## 
+    ## data:  east$migration and west$migration
+    ## t = -1.8114, df = 36.417, p-value = 0.07834
+    ## alternative hypothesis: true difference in means is not equal to 0
+    ## 95 percent confidence interval:
+    ##  -1.71832364  0.09665577
+    ## sample estimates:
+    ## mean of x mean of y 
+    ##  2.474212  3.285046
+
+P value is &gt; .05 so we fail to reject Ho, the means are the same.
 
 ### Question 6
-Based on the one sample t test and the barplot, we can see that the east coast mean migration rate is in line with the given 2.4 km/yr, and that the west coast is not the same as the 2.4 km/yr. The bar plot shows the west coast mean migration rate is ahead of the given 2.4 km/yr. However when compared to each other, the mean migration rates for the east vs west coast are not statistically different from each other. 
 
-
-
+Based on the one sample t test and the barplot, we can see that the east coast mean migration rate is in line with the given 2.4 km/yr, and that the west coast is not the same as the 2.4 km/yr. The bar plot shows the west coast mean migration rate is ahead of the given 2.4 km/yr. However when compared to each other, the mean migration rates for the east vs west coast are not statistically different from each other.

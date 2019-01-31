@@ -1,11 +1,12 @@
 ---
 title: "Assignment 3"
 author: "Troy Yang, Becky Lynskey, Sydney Lehman"
-output: html_document
+output: rmarkdown::github_document
 
 ---
+
 ### Statement of Author contributions
-Sydney worked worked more on problem 1, while Becky and Troy focused more on problem 2 and 3. However, we were in communication at all times and checkced each others work. The answers we came up with were ones that we all agreed on.
+We worked through the lab together at all times while working on this. Short answer responses were always talked through before writing anything, and whenever there was disagreement we aways made sure to come to a concensus first. Troy wrote most of the code, but things were always talked through beforehand. When we had issues and needed the TA's help, Becky went to office hours as Troy has class during that time.  
 
 #Problem 1
 ```{r}

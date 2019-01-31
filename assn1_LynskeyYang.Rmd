@@ -2,7 +2,7 @@
 title: "Assignment 1"
 author: "Troy Yang, Becky Lynskey"
 
-output: html_document
+output: rmarkdown::github_document
 ---
 
 ### Statement of Author contributions
