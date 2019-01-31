@@ -1,0 +1,326 @@
+---
+title: "Assignment 3"
+author: "Troy Yang, Becky Lynskey, Sydney Lehman"
+output: html_document
+
+---
+### Statement of Author contributions
+Sydney worked worked more on problem 1, while Becky and Troy focused more on problem 2 and 3. However, we were in communication at all times and checkced each others work. The answers we came up with were ones that we all agreed on.
+
+#Problem 1
+```{r}
+#Data
+benguela.upw <- read.csv("http://faraway.neu.edu/data/assn4_upwelling_benguela.csv")
+california.upw <- read.csv("http://faraway.neu.edu/data/assn4_upwelling_california.csv")
+canary.upw <- read.csv("http://faraway.neu.edu/data/assn4_upwelling_canary.csv")
+humboldt.upw <- read.csv("http://faraway.neu.edu/data/assn4_upwelling_humboldt.csv")
+
+benguela.tmp <- read.csv("http://faraway.neu.edu/data/assn4_temperature_benguela.csv")
+california.tmp <- read.csv("http://faraway.neu.edu/data/assn4_temperature_california.csv")
+canary.tmp <- read.csv("http://faraway.neu.edu/data/assn4_temperature_canary.csv")
+humboldt.tmp <- read.csv("http://faraway.neu.edu/data/assn4_temperature_humboldt.csv")
+```
+This code is to import the datasets that are going to be analyzed.
+#1
+```{r}
+benupwrm <- data.frame(rowMeans(benguela.upw[,c(1:22)]))
+names(benupwrm) <- "upwelling"
+zBen <- data.frame(benguela.upw$year)
+names(zBen) <- "Year"
+benupw <- cbind(benupwrm, zBen)
+
+calupwrm <- data.frame(rowMeans(california.upw[,c(1:22)]))
+names(calupwrm) <- "upwelling"
+zCal <- data.frame(california.upw$year)
+names(zCal) <- "Year"
+calupw <- cbind(calupwrm, zCal)
+
+canupwrm <- data.frame(rowMeans(canary.upw[,c(1:22)]))
+names(canupwrm) <- "upwelling"
+zBen <- data.frame(canary.upw$year)
+names(zBen) <- "Year"
+canupw <- cbind(canupwrm, zBen)
+
+humupwrm <- data.frame(rowMeans(humboldt.upw[,c(1:22)]))
+names(humupwrm) <- "upwelling"
+zBen <- data.frame(humboldt.upw$year)
+names(zBen) <- "Year"
+humupw <- cbind(humupwrm, zBen)
+
+bentmprm <- data.frame(rowMeans(benguela.tmp[,c(1:22)]))
+names(bentmprm) <- "temp"
+xBen <- data.frame(benguela.tmp$year)
+names(xBen) <- "Year"
+bentmp <- cbind(bentmprm, xBen)
+
+caltmprm <- data.frame(rowMeans(california.tmp[,c(1:22)]))
+names(caltmprm) <- "temp"
+xCal <- data.frame(california.tmp$year)
+names(xCal) <- "Year"
+caltmp <- cbind(caltmprm, xCal)
+
+cantmprm <- data.frame(rowMeans(canary.tmp[,c(1:22)]))
+names(cantmprm) <- "temp"
+xBen <- data.frame(canary.tmp$year)
+names(xBen) <- "Year"
+cantmp <- cbind(cantmprm, xBen)
+
+humtmprm <- data.frame(rowMeans(humboldt.tmp[,c(1:22)]))
+names(humtmprm) <- "temp"
+xBen <- data.frame(humboldt.tmp$year)
+names(xBen) <- "Year"
+humtmp <- cbind(humtmprm, xBen)
+
+
+mergedben <- merge(benupw,bentmp)
+mergedcal <- merge(calupw,caltmp)
+mergedcan <- merge(canupw, cantmp)
+mergedhum <- merge(humupw,humtmp)
+```
+This code starts off by taking the mean upwelling values or mean temperatures per year using the rowmean function, then naming the extracted column either upwelling or temperature. Year is pulled from the original datasets using $ and consequently named year. Next, the row means and years are combined using cbind between the two data frames. Finally, the individual upwelling and temperature dataframes are combined into 1 dataframe using the merge function.
+#2
+```{r}
+mergedben ["System"] <- "Benguela"
+mergedcal ["System"] <- "California"
+mergedcan ["System"] <- "Canary"
+mergedhum ["System"] <- "Humboldt"
+Done <- rbind(mergedben, mergedcal, mergedcan, mergedhum)
+Done$System <- as.factor(Done$System)
+```
+A column labeled system was added to each of the EBCS dataframes containing the respective system. All dataframes were merged into a single data frame named Done using the rbind function and then system was designated as a factor.
+
+3. The best approach for relating upwelling means to the year for each EBCS would be a linear regression model for each EBCS. This is because we are looking for a casual relationship between year (explanatory numerical variable) and upwelling (numerical response variable) in each EBCS. 
+
+
+4. 
+Linear Regression assumes that the relationship between the explanatory and response variable should be the same, homoscedacity (constant variance), normally distributed residuals, and independent and non autocorrelated residuals. There is also an assumption that there is a linear relationship between the response and explanatory variables. The null hypothesis is that the slope for the relationship is 0. This hypothesis is the same for each ECBS. The alternate would be that the slope is not 0. 
+```{r}
+#Humboldt
+#Make linear model
+lmben <- lm(mergedben$upwelling ~ mergedben$Year, data = mergedben)
+#Test for residual normality
+shapiro.test(lmben$residuals)
+#Independent and non-correlated residuals?
+acf(lmben$residuals)
+#linearity and  homoscedasticity?
+par(mfrow = c(2,2))
+plot(lmben)
+#Further confirmed and visualized by solo qqplot
+par(mfrow = c(1,1))
+qqnorm(lmben$residuals)
+qqline(lmben$residuals)
+#Visualize relationship between variables
+plot(mergedben$Year, mergedben$upwelling)
+```
+To start off a shapiro-wilkes test was used to test for the normality of the residuals and yielded a p-value of .229 failing to reject the null of normality. Using the acf function on the residuals they seem to be independent and lack autocorrelation as there is very little extension of the lag out of the ACF range. Moreover, the plotted residuals do not show any trend indicating linearity and the constant spread of residuals across fitted values indicates homoscedasticity. Finally, the qqplot of residuals further supports their normality and the plot of year vs upwelling indicates a positive linear relationship.From this data the assumptions of the linear model are largely upheld and support the linear regression analysis.
+
+```{r}
+#California
+lmcal <- lm(mergedcal$upwelling ~ mergedcal$Year, data = mergedcal)
+shapiro.test(lmcal$residuals)
+acf(lmcal$residuals)
+par(mfrow = c(2,2))
+plot(lmcal)
+par(mfrow = c(1,1))
+qqnorm(lmcal$residuals)
+qqline(lmcal$residuals)
+plot(mergedcal$Year, mergedcal$upwelling)
+#Doesnt seem to have as strong of relationship
+```
+To start off a shapiro-wilkes test was used to test for the normality of the residuals and yielded a p-value of .3133 failing to reject the null of normality. Using the acf function on the residuals they seem to be independent and lack autocorrelation as there is no extension of the lag out of the ACF range. Moreover, the plotted residuals do not show any trend indicating linearity and the constant spread of residuals across fitted values indicates homoscedasticity. Finally, the qqplot of residuals further supports their normality and the plot of year vs upwelling indicates a very small positive linear relationship.From this data the assumptions of the linear model are largely upheld and support the linear regression analysis.
+```{r}
+#Canary
+lmcan <- lm(mergedcan$upwelling ~ mergedcan$Year, data = mergedcan)
+shapiro.test(lmcan$residuals)
+acf(lmcan$residuals)
+par(mfrow = c(2,2))
+plot(lmcan)
+par(mfrow = c(1,1))
+qqnorm(lmcan$residuals)
+qqline(lmcan$residuals)
+plot(mergedcan$Year, mergedcan$upwelling)
+```
+To start off a shapiro-wilkes test was used to test for the normality of the residuals and yielded a p-value of .9627 failing to reject the null of normality. Using the acf function on the residuals they seem to be independent and lack autocorrelation as there is very little extension of the lag out of the ACF range. Moreover, the plotted residuals do not show any trend indicating linearity and the constant spread of residuals across fitted values indicates homoscedasticity. Finally, the qqplot of residuals further supports their normality and the plot of year vs upwelling indicates a positive linear relationship.From this data the assumptions of the linear model are largely upheld and support the linear regression analysis.
+```{r}
+#Humboldt  
+lmhum <- lm(mergedhum$upwelling ~ mergedhum$Year, data = mergedhum)
+shapiro.test(lmhum$residuals)  
+acf(lmhum$residuals)
+par(mfrow = c(2,2))
+plot(lmhum)
+par(mfrow = c(1,1))
+qqnorm(lmhum$residuals)
+qqline(lmhum$residuals)
+plot(mergedhum$Year, mergedhum$upwelling)  
+
+```
+To start off a shapiro-wilkes test was used to test for the normality of the residuals and yielded a p-value of .1371 failing to reject the null of normality. Using the acf function on the residuals they seem to be independent and lack autocorrelation as there is very little extension of the lag out of the ACF range. Moreover, the plotted residuals do not show any trend indicating linearity and the constant spread of residuals across fitted values indicates homoscedasticity. Finally, the qqplot of residuals further supports their normality and the plot of year vs upwelling indicates a positive linear relationship.From this data the assumptions of the linear model are largely upheld and support the linear regression analysis.
+```{r}
+sumben <- summary(lmben)
+sumcal <- summary(lmcal)
+sumcan <- summary(lmcan)
+sumhum <- summary(lmhum)
+```
+This code summarizes the statistical values calculated by R for each EBCS linear model. The slopes for each linear regression are statistically significant.
+
+#5
+```{r}
+plot(mergedben$Year, mergedben$upwelling, col = "red", ylim = c(0,1), xlab = "Year", ylab = "Mean Upwelling", main = "Temporal Upwelling Trends" )
+points(mergedcal$Year, mergedcal$upwelling, col = "blue")
+points(mergedcan$Year, mergedcan$upwelling, col = "green")
+points(mergedhum$Year, mergedhum$upwelling, col = "black")
+abline(lm(mergedben$upwelling~mergedben$Year),col = "red")
+abline(lm(mergedcal$upwelling~mergedcal$Year),col = "blue")
+abline(lm(mergedcan$upwelling~mergedcan$Year),col = "green")
+abline(lm(mergedhum$upwelling~mergedhum$Year),col = "black")
+legend("bottomleft", legend = c("Benguela", "California", "Canary", "Humboldt"), col = c("red", "blue", "green", "black"), lty = 1, cex = .8)
+```
+This code plots the upwelling means for each EBCS by year and also the corresponding linear model.The points function was used to add the other EBCS while the abline function was used to add the linear regressions, the legend function was also used. The figure displays clear linear relationships between the year and mean upwelling for all 4 EBCS. Benguela has the highest mean upwelling values and seems to have a similar positive slope to Canary. Humboldt had the smallest y-intercept but seems to have the most positive slope and quickly crosses over the regression of California. California seems to have a clear linear relationship between year and mean upwelling but seemingly has a negligible slope as the mean upwelling seems to be consistently about .35. Overall, Benguela, Canary, and Humboldt all display clear positive relationships between year and increasing mean upwelling.
+#6
+```{r}
+benslope <- coef(sumben)[2,1:2]
+calslope <- coef(sumcal)[2,1:2]
+canslope <- coef(sumcan)[2,1:2]
+humslope <- coef(sumhum)[2,1:2]
+
+slopemat <- matrix(c(benslope[1], calslope[1], canslope[1], humslope[1]), ncol = 4, nrow = 1)
+
+
+bpslope <- barplot(slopemat, main = "EBCS Linear Model Slopes", names.arg = c("Benguela", "Cali", "Canary", "Humboldt"), xlab = "EBCS", ylab = "Mean Upwelling/Year", ylim = c(0,.0017))
+
+errormat <- matrix(c(benslope[2], calslope[2], canslope[2], humslope[2]), ncol = 4, nrow = 1)
+
+#lower ci
+lowc <- as.matrix(slopemat - (1.96*errormat))
+#upper ci
+highc <- as.matrix(slopemat + (1.96*errormat))
+
+arrows(x0 = bpslope, x1 = bpslope, y0 = lowc, y1 = highc, angle = 90, len = .2, code = 3)
+```
+The slopes for each EBCS were extracted from the coefficients of the summary of the linear models and then plotted in a barplot. 95% confidence intervals were added using 1.96*SE and the arrows function. Based on the figure all 4 EBCS have statistically significant slopes given that all 95% CIs are greater than 0. This is also confirmed when looking at the p-values in the summaries of the linear models. With respect to differences in the slopes california clearly has a statistically different slope than the other 3 EBCS due to the lack of overlap between slope CIs. Benguela, Canary, and Humboldt all seem to have similar slopes with Humboldt on the higher end and Canary on the lower end. Benguela's CI overlaps both Humboldt and Canary so there would not be any statistically significant differences between the slopes of Benguela and Canary or Benguela and Humboldt. With respect to the comparison between the slopes of Canary and Humboldt, it is very difficult to determine whether there is an overlap by looking at the figure. The upper bound for Canary was calculated to be .00131 while the lower bound for Humboldt was calculated to be .00133 so using these values the slopes would be statistically different.
+
+Problem 2
+
+1.
+The best approach for determining the consistency of climate change across EBCS would be an ANCOVA because we are looking for the relationship between EBCS and year with upwelling (categorical and numerical explanatory variable with numerical response variable respectively).
+
+2.
+Ho1: There is no difference between slopes for year across the different levels of EBCS.
+Ha1: There is a difference between slopes for year across the different levels of EBCS.
+
+Ho2: There is no relationship between year and upwelling
+Ha2: There is a relationship between year and upwelling
+
+Ho3: There is no difference between the adjusted mean of upwelling across different EBCS
+Ha3: There is a difference between the adjusted mean of upwelling across different EBCS
+
+3.
+```{r}
+aov_ebcs <- aov(upwelling~Year*System, data = Done)
+aov_ebcs
+summary(aov_ebcs)
+
+shapiro.test(aov_ebcs$residuals)
+
+par(mfrow = c(1,1))
+plot(aov_ebcs$residuals)
+plot(Done$Year,Done$upwelling)
+
+qqnorm(aov_ebcs$residuals)
+qqline(aov_ebcs$residuals)
+
+plot(mergedben$Year, mergedben$upwelling, col = "red", ylim = c(0,1))
+points(mergedcal$Year, mergedcal$upwelling, col = "blue")
+points(mergedcan$Year, mergedcan$upwelling, col = "green")
+points(mergedhum$Year, mergedhum$upwelling, col = "black")
+abline(lm(mergedben$upwelling~mergedben$Year),col = "red")
+abline(lm(mergedcal$upwelling~mergedcal$Year),col = "blue")
+abline(lm(mergedcan$upwelling~mergedcan$Year),col = "green")
+abline(lm(mergedhum$upwelling~mergedhum$Year),col = "black")
+```
+The assumptions of the ancova test are that the residuals are normally distributed, equal variances across groups, equal slopes across groups, covariates and the response variable have a linear relationship and independent random samples. The plot of the residuals showed equal spread, indicating homosecedacity. A scatterplot also showed that there appeared to be a linear relationship between the covariate and the response variable. Based on the shapiro wilks test along with the QQ plot, the residuals of the ancova are not normally distributed. In addition to that, the summary of the ancova shows that the interaction between the factor and covariate are significant, which means that the assumption of equal slopes is violated. We can also see this in the plot, as the slopes of California and Humboldt intersect.
+ 
+
+4.
+The results of the ANCOVA test show that both year and EBCS had significant effects on upwelling, which would mean that global warming does have an effect on upwelling, but that it is not consistent across ebcs. However, the ancova also showed a significant interaction between our factor and covariate. This means that we cannot actually interpret the main effects of ANCOVA as the effect of the factor is contingent upon the value of the covariate. Because there are unequal slopes (significant interaction between covariate and factor), we conclude that the impact is inconsistent across EBCS.
+
+
+Problem 3
+
+1.
+The best approach for relating upwelling to the land-sea temperature difference for each EBCS would be a linear regression model for each EBCS. That is because we are looking for a casual relationship between temp (explanatory numerical variable) and upwelling (numerical response variable) in each EBCS. 
+
+2. 
+Linear Regression assumes that the relationship between the explanatory and response variable should be the same, homoscedacity (constant variance), normally distributed residuals, and independent and non autocorrelated residuals. 
+
+```{r}
+lm_ben <- lm(upwelling~temp, data = mergedben)
+
+par(mfrow= c(2,2))
+plot(lm_ben)
+par(mfrow= c(1,1))
+plot(mergedben$upwelling, mergedben$temp)
+plot(lm_ben$residuals)
+shapiro.test(lm_ben$residuals)
+acf(lm_ben$residuals)
+```
+In the plot of the residuals, there did not appear to be a trend, there also appeared to be consistency in the spread of the residuals, which indicates linearity and homoscedacity. According to the QQ plot and the shapiro wilks test, the residuals are normally distributed as well. Finally the acf plot also shows that the residuals are indepdendent and have no autocorrelation. There also appears to be a linear relationship based on the scatterplot.
+
+```{r}
+lm_cal <- lm(upwelling~temp, data = mergedcal)
+
+par(mfrow= c(2,2))
+plot(lm_cal)
+par(mfrow= c(1,1))
+plot(mergedcal$upwelling, mergedcal$temp)
+plot(lm_cal$residuals)
+shapiro.test(lm_cal$residuals)
+acf(lm_cal$residuals)
+```
+In the plot of the residuals, there did not appear to be a trend, there also appeared to be consistency in the spread of the residuals, which indicates linearity and homoscedacity. According to the QQ plot and the shapiro wilks test, the residuals are normally distributed as well. Finally the acf plot also shows that the residuals are indepdendent and have no autocorrelation. There also appears to be a linear relationship based on the scatterplot.
+
+```{r}
+lm_can <- lm(upwelling~temp, data = mergedcan)
+
+par(mfrow= c(2,2))
+plot(lm_can)
+par(mfrow= c(1,1))
+plot(mergedcan$upwelling, mergedcan$temp)
+plot(lm_can$residuals)
+shapiro.test(lm_can$residuals)
+acf(lm_can$residuals)
+```
+In the plot of the residuals, there did not appear to be a trend, there also appeared to be consistency in the spread of the residuals, which indicates linearity and homoscedacity. According to the QQ plot and the shapiro wilks test, the residuals are normally distributed as well. Finally the acf plot also shows that the residuals are indepdendent and have no autocorrelation. There also appears to be a linear relationship based on the scatterplot.
+
+```{r}
+lm_hum <- lm(upwelling~temp, data = mergedhum)
+
+par(mfrow= c(2,2))
+plot(lm_hum)
+par(mfrow= c(1,1))
+plot(mergedhum$upwelling, mergedhum$temp)
+plot(lm_hum$residuals)
+shapiro.test(lm_hum$residuals)
+acf(lm_hum$residuals)
+```
+In the plot of the residuals, there did not appear to be a trend, there also appeared to be consistency in the spread of the residuals, which indicates linearity and homoscedacity. According to the QQ plot and the shapiro wilks test, the residuals are normally distributed as well. Finally the acf plot also shows that the residuals are indepdendent and have no autocorrelation. There also appears to be a linear relationship based on the scatterplot.
+
+3. 
+```{r}
+summary(lm_ben)
+summary(lm_cal)
+summary(lm_can)
+summary(lm_hum)
+```
+
+Based on the significant p-values, there appears to be a linear relationship between upwelling and land-sea temperature differences in each ECBS.
+
+4.
+```{r}
+coef(lm_ben)
+coef(lm_cal)
+coef(lm_can)
+coef(lm_hum)
+```
+
+Based on the coeffecients of the regression models, the strength of the relationships between upwelling and land-sea temp difference in each EBCS in decreasing order is Bengula, Humboldt, Canary and California.
